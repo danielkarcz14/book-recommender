@@ -1,4 +1,4 @@
-pandas
-numpy
-streamlit
-kaggle
+pandas==3.0.2
+numpy==2.4.4
+streamlit==1.56.0
+kaggle==2.0.1
