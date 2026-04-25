@@ -3,7 +3,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-import streamlit as st
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -13,14 +12,14 @@ if str(REPO_ROOT) not in sys.path:
 from src.paths import CLEANED_BOOKS_FILE as BOOKS_FILE
 from src.paths import CLEANED_RATINGS_FILE as RATINGS_FILE
 
-@st.cache_data
+
 def load_data():
     books = pd.read_csv(BOOKS_FILE)
     ratings = pd.read_csv(RATINGS_FILE)
     return books, ratings
 
-def recommend_books(book_title, author_contains=None, min_ratings=8, top_n=10):
-    books, ratings = load_data()
+
+def recommend_books(books, ratings, book_title, author_contains=None, min_ratings=8, top_n=10):
     dataset = pd.merge(ratings, books, on="ISBN")
 
     dataset["Book-Title"] = dataset["Book-Title"].astype(str).str.lower().str.strip()

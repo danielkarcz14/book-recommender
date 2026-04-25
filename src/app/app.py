@@ -1,13 +1,19 @@
 from __future__ import annotations
-from src.model.book_rec import recommend_books
-
-import pandas as pd
 import streamlit as st
+from src.model.book_rec import load_data, recommend_books
+
+
+@st.cache_data
+def get_data():
+    return load_data()
 
 
 st.set_page_config(page_title="Book Recommender", layout="centered")
 st.title("Book Recommender")
 st.write("Enter a book title and get recommendations.")
+
+books, ratings = get_data()
+
 book_title = st.text_input("Favorite book", placeholder="The Fellowship of the Ring")
 top_n = st.slider("Number of recommendations", min_value=5, max_value=20, value=10)
 if st.button("Get recommendations"):
@@ -17,6 +23,8 @@ if st.button("Get recommendations"):
         try:
             with st.spinner("Generating recommendations..."):
                 recommendations = recommend_books(
+                    books=books,
+                    ratings=ratings,
                     book_title=book_title,
                     top_n=top_n,
                 )
