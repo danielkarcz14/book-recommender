@@ -9,14 +9,13 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.data.download import check_if_exists
+from src.paths import CLEANED_BOOKS_FILE
+from src.paths import CLEANED_DATA_DIR
+from src.paths import CLEANED_RATINGS_FILE
+from src.paths import RAW_BOOKS_FILE
+from src.paths import RAW_DATA_DIR
+from src.paths import RAW_RATINGS_FILE
 
-
-RAW_DATA_DIR = REPO_ROOT / "data" / "raw"
-CLEANED_DATA_DIR = REPO_ROOT / "data" / "cleaned"
-RAW_BOOKS_FILE = RAW_DATA_DIR / "Books.csv"
-RAW_RATINGS_FILE = RAW_DATA_DIR / "Ratings.csv"
-CLEANED_BOOKS_FILE = CLEANED_DATA_DIR / "books_cleaned.csv"
-CLEANED_RATINGS_FILE = CLEANED_DATA_DIR / "ratings_cleaned.csv"
 
 
 def load_raw_data() -> tuple[pd.DataFrame, pd.DataFrame]:

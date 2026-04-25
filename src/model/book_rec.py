@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
@@ -6,8 +7,11 @@ import streamlit as st
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-BOOKS_FILE = REPO_ROOT / "data" / "cleaned" / "books_cleaned.csv"
-RATINGS_FILE = REPO_ROOT / "data" / "cleaned" / "ratings_cleaned.csv"
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.paths import CLEANED_BOOKS_FILE as BOOKS_FILE
+from src.paths import CLEANED_RATINGS_FILE as RATINGS_FILE
 
 @st.cache_data
 def load_data():

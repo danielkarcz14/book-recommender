@@ -1,11 +1,19 @@
+import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 import kaggle
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.paths import RAW_DATA_DIR
+
+
 CSV_FILES = ("Books.csv", "Ratings.csv")
 DATASET = "arashnic/book-recommendation-dataset"
-OUTPUT_DIR = Path("../../data/raw")
+OUTPUT_DIR = RAW_DATA_DIR
 
 
 def download_file(api, output_dir: Path, file_name: str) -> Path:
