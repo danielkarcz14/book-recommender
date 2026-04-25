@@ -139,15 +139,25 @@ python -m streamlit run src/app/app.py
 - basic data cleaning pipeline
 - recommendation generation for a selected book
 - simple Streamlit frontend prototype
-- cached loading of cleaned data in the app/model flow
+- cached loading of cleaned data
 
 ## Limitations
 
-TODO
+- Exact book title matching 
+- New books with low amount of ratings are not included 
+- Corelation does not equal content similarity. Two books can be read by same users for different reasons.
+- The project does not include automated tests yet, so changes are verified only manually
+- The data pipeline is run manually step by step
+- The app does not show user-friendly message when the entered book is not found
 
 ## Future Improvements
 
-TODO
+- Database instead of loading whole csv into memeory
+- Monitor data - if dataset is changed download new dataset
+- Add unit tests for the data cleaning and recommendation functions
+- Set up CI/CD to run tests automatically on every push
+- Deploy app
+- Add scheduled launch of the data pipeline
 
 ## Code Review
 
