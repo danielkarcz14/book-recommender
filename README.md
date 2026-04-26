@@ -103,42 +103,18 @@ High-level approach:
 
 ## How To Run
 
-### 1. Clone the repository
+### Prerequisite: Kaggle credentials
+
+Authenticate to Kaggle either by setting `KAGGLE_USERNAME` and `KAGGLE_KEY`, or by placing your token in `~/.kaggle/kaggle.json`. More details: https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md
+
+### Run
 
 ```bash
 git clone https://github.com/danielkarcz14/book-recommender.git
 cd book-recommender
-```
-
-### 2. Install dependencies
-
-```bash
 python -m pip install -r requirements.txt
-```
-
-### 3. Configure Kaggle credentials
-
-You can authenticate to Kaggle either by:
-
-- setting `KAGGLE_USERNAME` and `KAGGLE_KEY`
-- or using `~/.kaggle/kaggle.json`
-- more here: https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md
-
-### 4. Download raw data
-
-```bash
 python -m src.data.download
-```
-
-### 5. Clean the data
-
-```bash
 python -m src.data.clean
-```
-
-### 6. Run the Streamlit app
-
-```bash
 python -m streamlit run streamlit_app.py
 ```
 
