@@ -18,13 +18,17 @@ graph TD
 
     %% Application Definition
     subgraph Streamlit_App [Online Phase: User Interface]
+        Cache[(In-Memory Cache<br/>@st.cache_data)]
         D((User)) -->|Enters book title| E[User Input]
-        E --> F{Recommender Algorithm}
+        
+        E -->|Query| F{Recommender Algorithm}
+        Cache -->|Passes books & ratings| F
+        
         F -->|Render table| G[Display Result]
     end
 
     %% Connecting both phases
-    C -.->|Load into memory @st.cache_data| F
+    C -.->|App Startup| Cache
 ```
 
 Main components:
@@ -105,7 +109,7 @@ High-level approach:
 
 ### Prerequisite: Kaggle credentials
 
-Authenticate to Kaggle either by setting `KAGGLE_USERNAME` and `KAGGLE_KEY`, or by placing your token in `~/.kaggle/kaggle.json`. More details: https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md
+Authenticate to Kaggle by placing your token in `~/.kaggle/kaggle.json`. More details: https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md
 
 ### Run
 
@@ -118,6 +122,8 @@ python -m src.data.download
 python -m src.data.clean
 python -m streamlit run streamlit_app.py
 ```
+
+The last four commands above can be replaced with `make all` (requires `make` — available on Linux/Mac/WSL/Git Bash).
 
 ## Configuration
 
@@ -137,21 +143,20 @@ Basic runtime configuration lives in `config.ini`.
 
 ## Limitations
 
-- Exact book title matching 
-- New books with low amount of ratings are not included 
-- Corelation does not equal content similarity. Two books can be read by same users for different reasons.
-- The project does not include automated tests yet, so changes are verified only manually
-- The data pipeline is run manually step by step
-- The app does not show user-friendly message when the entered book is not found
+- CSV data without a database meaning full file scan, no indexes, no referential integrity, no transactions
+- Logging only via `print` statements 
+- No deployment story, the app runs only locally via `streamlit run`
+- No automated tests, everything is verified manually
 
 ## Future Improvements
 
-- Database instead of loading whole csv into memeory
-- Monitor data - if dataset is changed download new dataset
+- Migration from CSV to a SQL database with proper schema, indexes and constraints
+- Replace `print` calls with the standard `logging` module
+- Monitor data, if the dataset is updated on Kaggle, download the new version
 - Add unit tests for the data cleaning and recommendation functions
 - Set up CI/CD to run tests automatically on every push
-- Deploy app
-- Add scheduled launch of the data pipeline
+- Add scheduled launch of the data pipeline using Task Scheduler (Windows) / cron (Linux)
+- Migrate config from INI to TOML if deploying to Streamlit Cloud 
 
 ## Code Review
 
