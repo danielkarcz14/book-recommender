@@ -4,7 +4,7 @@
 
 - The overall idea is reasonable, find users who rated the input book, look at what else they read, and rank by Pearson correlation. A standard item based collaborative filtering approach.
 - Filtering out `Book-Rating == 0` is correct as they are implicit and would ruin the result of Pearson correlation.
-- The `min_ratings >= 8` threshold makes sense to drop noisy candidates and to get reasonable result from Perason correlation.
+- The `min_ratings >= 8` threshold makes sense to drop noisy candidates and to get reasonable result from Pearson correlation.
 
 ## Main issues
 
