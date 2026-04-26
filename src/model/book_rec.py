@@ -1,16 +1,10 @@
-from pathlib import Path
-import sys
-
 import numpy as np
 import pandas as pd
 
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from src.paths import CLEANED_BOOKS_FILE as BOOKS_FILE
-from src.paths import CLEANED_RATINGS_FILE as RATINGS_FILE
+from src.settings import CLEANED_BOOKS_FILE as BOOKS_FILE
+from src.settings import CLEANED_RATINGS_FILE as RATINGS_FILE
+from src.settings import DEFAULT_TOP_N
+from src.settings import MIN_RATINGS
 
 
 def load_data():
@@ -19,50 +13,51 @@ def load_data():
     return books, ratings
 
 
-def recommend_books(books, ratings, book_title, author_contains=None, min_ratings=8, top_n=10):
+def recommend_books(books, ratings, book_title, min_ratings=MIN_RATINGS, top_n=DEFAULT_TOP_N) -> pd.DataFrame:
     dataset = pd.merge(ratings, books, on="ISBN")
 
-    dataset["Book-Title"] = dataset["Book-Title"].astype(str).str.lower().str.strip()
-    dataset["Book-Author"] = dataset["Book-Author"].astype(str).str.lower().str.strip()
-
+    input_book_title = book_title
     book_title = book_title.lower().strip()
 
-    selected_readers = dataset["User-ID"][dataset["Book-Title"] == book_title]
-
-    if author_contains:
-        author_contains = author_contains.lower().strip()
-        selected_readers = dataset["User-ID"][
-            (dataset["Book-Title"] == book_title)
-            & (dataset["Book-Author"].str.contains(author_contains, na=False))
-        ]
-
+    selected_readers = dataset["User-ID"][dataset["Book-Title-Norm"] == book_title]
     selected_readers = np.unique(selected_readers.tolist())
+    
+    if len(selected_readers) == 0:
+        raise ValueError(f"Book '{input_book_title}' not found or not rated.")
+
+    # final dataset
     books_of_selected_readers = dataset[dataset["User-ID"].isin(selected_readers)]
-    number_of_rating_per_book = books_of_selected_readers.groupby(["Book-Title"]).agg("count").reset_index()
 
-    books_to_compare = number_of_rating_per_book["Book-Title"][
-        number_of_rating_per_book["User-ID"] >= min_ratings
-    ].tolist()
+    # Number of ratings per other books in dataset
+    number_of_rating_per_book = books_of_selected_readers.groupby(["Book-Title-Norm"]).agg("count").reset_index()
 
-    ratings_data_raw = books_of_selected_readers[["User-ID", "Book-Rating", "Book-Title"]][
-        books_of_selected_readers["Book-Title"].isin(books_to_compare)
-    ]
+    # select only books which have actually higher number of ratings than threshold
+    books_to_compare = number_of_rating_per_book["Book-Title-Norm"][number_of_rating_per_book["User-ID"] >= min_ratings]
+    books_to_compare = books_to_compare.tolist()
 
-    ratings_data_raw_nodup = ratings_data_raw.groupby(["User-ID", "Book-Title"])["Book-Rating"].mean()
+    if book_title not in books_to_compare:
+        return pd.DataFrame(columns=["book", "corr", "avg_rating"])
+
+
+    ratings_data_raw = books_of_selected_readers[["User-ID", "Book-Rating", "Book-Title-Norm"]][books_of_selected_readers["Book-Title-Norm"].isin(books_to_compare)]
+
+    # group by User and Book and compute mean
+    ratings_data_raw_nodup = ratings_data_raw.groupby(["User-ID", "Book-Title-Norm"])["Book-Rating"].mean()
+    
+    # reset index to see User-ID in every row
     ratings_data_raw_nodup = ratings_data_raw_nodup.to_frame().reset_index()
 
-    dataset_for_corr = ratings_data_raw_nodup.pivot(index="User-ID", columns="Book-Title", values="Book-Rating")
+    dataset_for_corr = ratings_data_raw_nodup.pivot(index="User-ID", columns="Book-Title-Norm", values="Book-Rating")
 
-    LoR_list = [book_title]
+    query_list = [book_title]
     result_list = []
-    worst_list = []
 
-    for LoR_book in LoR_list:
+    for query_title in query_list:
         
-        #Take out the Lord of the Rings selected book from correlation dataframe
+        # Take out the selected book from correlation dataframe
         dataset_of_other_books = dataset_for_corr.copy(deep=False)
-        dataset_of_other_books.drop([LoR_book], axis=1, inplace=True)
-        
+        dataset_of_other_books.drop([query_title], axis=1, inplace=True)
+
         # empty lists
         book_titles = []
         correlations = []
@@ -71,8 +66,8 @@ def recommend_books(books, ratings, book_title, author_contains=None, min_rating
         # corr computation
         for book_title in list(dataset_of_other_books.columns.values):
             book_titles.append(book_title)
-            correlations.append(dataset_for_corr[LoR_book].corr(dataset_of_other_books[book_title]))
-            tab=ratings_data_raw[ratings_data_raw['Book-Title']==book_title].groupby(ratings_data_raw['Book-Title'])['Book-Rating'].mean()
+            correlations.append(dataset_for_corr[query_title].corr(dataset_of_other_books[book_title]))
+            tab = ratings_data_raw[ratings_data_raw["Book-Title-Norm"] == book_title].groupby("Book-Title-Norm")["Book-Rating"].mean()
             avgrating.append(tab.min())
 
         # final dataframe of all correlation of each book   
@@ -81,9 +76,5 @@ def recommend_books(books, ratings, book_title, author_contains=None, min_rating
 
         # top 10 books with highest corr
         result_list.append(corr_fellowship.sort_values('corr', ascending = False).head(top_n))
-        
-        #worst 10 books
-        worst_list.append(corr_fellowship.sort_values('corr', ascending = False).tail(10))
 
     return result_list[0]
-

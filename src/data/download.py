@@ -1,18 +1,13 @@
-import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 import kaggle
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from src.paths import RAW_DATA_DIR
+from src.settings import DATASET
+from src.settings import RAW_DATA_DIR
 
 
 CSV_FILES = ("Books.csv", "Ratings.csv")
-DATASET = "arashnic/book-recommendation-dataset"
 OUTPUT_DIR = RAW_DATA_DIR
 
 
@@ -21,15 +16,15 @@ def download_file(api, output_dir: Path, file_name: str) -> Path:
     file_path = output_dir / file_name
 
     if file_path.exists():
-        print(f"{file_name} uz existuje, preskakuji stazeni.")
+        print(f"{file_name} already exists, skipping download.")
         return file_path
 
-    print(f"Stahuji {file_name}...")
+    print(f"Downloading {file_name}...")
     api.dataset_download_file(DATASET, file_name=file_name, path=str(output_dir))
 
     zip_path = output_dir / f"{file_name}.zip"
     if not zip_path.exists():
-        raise FileNotFoundError(f"Nepodarilo se najit archiv {zip_path}.")
+        raise FileNotFoundError(f"Could not find archive {zip_path}.")
 
     with ZipFile(zip_path, "r") as zip_file:
         zip_file.extractall(output_dir)
@@ -37,7 +32,7 @@ def download_file(api, output_dir: Path, file_name: str) -> Path:
     zip_path.unlink(missing_ok=True)
 
     if not file_path.exists():
-        raise FileNotFoundError(f"Po rozbaleni chybi soubor {file_path}.")
+        raise FileNotFoundError(f"Could not find file {file_path} after extraction.")
 
     return file_path
 
@@ -59,7 +54,7 @@ def check_if_exists(output_dir: str | Path = OUTPUT_DIR) -> list[Path]:
     existing_files = [output_path / file_name for file_name in CSV_FILES]
 
     if all(file_path.exists() for file_path in existing_files):
-        print("Vsechny soubory uz existuji.")
+        print("All files already exist, skipping download.")
         return existing_files
 
     return download_data(output_path)
@@ -69,10 +64,10 @@ def main() -> int:
     try:
         check_if_exists()
     except Exception as exc:
-        print(f"Stazeni datasetu selhalo: {exc}")
+        print(f"Failed to download dataset: {exc}")
         return 1
 
-    print("Data jsou pripravena.")
+    print("Data are ready.")
     return 0
 
 

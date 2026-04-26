@@ -18,6 +18,6 @@
 ## What I changed in the refactor
 
 - Wrapped logic into `recommend_books(books, ratings, book_title, author_contains, min_ratings, top_n)` and `load_data()`
-- Moved paths into `src/paths.py`.
+- Moved paths and simple runtime settings into `config.ini` and `src/settings.py`.
 - Split data loading, cleaning, and recommendation into separate modules.
 - Lowercased the relevant columns explicitly so matching is case and whitespace insensitive.

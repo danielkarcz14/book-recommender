@@ -1,20 +1,12 @@
-import sys
-from pathlib import Path
-
 import pandas as pd
 
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
 from src.data.download import check_if_exists
-from src.paths import CLEANED_BOOKS_FILE
-from src.paths import CLEANED_DATA_DIR
-from src.paths import CLEANED_RATINGS_FILE
-from src.paths import RAW_BOOKS_FILE
-from src.paths import RAW_DATA_DIR
-from src.paths import RAW_RATINGS_FILE
+from src.settings import CLEANED_BOOKS_FILE
+from src.settings import CLEANED_DATA_DIR
+from src.settings import CLEANED_RATINGS_FILE
+from src.settings import RAW_BOOKS_FILE
+from src.settings import RAW_DATA_DIR
+from src.settings import RAW_RATINGS_FILE
 
 
 
@@ -53,6 +45,8 @@ def clean_books(books: pd.DataFrame) -> pd.DataFrame:
     for column in ["ISBN", "Book-Title", "Book-Author", "Publisher"]:
         cleaned[column] = cleaned[column].astype(str).str.strip()
 
+    cleaned["Book-Title-Norm"] = cleaned["Book-Title"].str.lower()
+
     return cleaned
 
 
@@ -84,16 +78,16 @@ def build_cleaned_datasets() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def main() -> int:
     try:
-        print("Nacitam raw data...")
+        print("Loading raw data...")
         books, ratings = load_raw_data()
         print(f"Raw books: {len(books)}")
         print(f"Raw ratings: {len(ratings)}")
 
-        print("Cistim books...")
+        print("Cleaning books...")
         books_cleaned = clean_books(books)
         print(f"Cleaned books: {len(books_cleaned)}")
 
-        print("Cistim ratings...")
+        print("Cleaning ratings...")
         ratings_cleaned = clean_ratings(ratings, set(books_cleaned["ISBN"]))
         print(f"Cleaned ratings: {len(ratings_cleaned)}")
 
@@ -101,10 +95,10 @@ def main() -> int:
         books_cleaned.to_csv(CLEANED_BOOKS_FILE, index=False)
         ratings_cleaned.to_csv(CLEANED_RATINGS_FILE, index=False)
     except Exception as exc:
-        print(f"Cisteni dat selhalo: {exc}")
+        print(f"Failed to clean data: {exc}")
         return 1
 
-    print("Vycistena data jsou ulozena v data/cleaned.")
+    print("Cleaned data are saved in data/cleaned.")
     return 0
 
 
