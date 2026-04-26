@@ -1,16 +1,10 @@
-from pathlib import Path
-import sys
-
 import numpy as np
 import pandas as pd
 
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from src.paths import CLEANED_BOOKS_FILE as BOOKS_FILE
-from src.paths import CLEANED_RATINGS_FILE as RATINGS_FILE
+from src.settings import CLEANED_BOOKS_FILE as BOOKS_FILE
+from src.settings import CLEANED_RATINGS_FILE as RATINGS_FILE
+from src.settings import DEFAULT_TOP_N
+from src.settings import MIN_RATINGS
 
 
 def load_data():
@@ -19,7 +13,7 @@ def load_data():
     return books, ratings
 
 
-def recommend_books(books, ratings, book_title, author_contains=None, min_ratings=8, top_n=10):
+def recommend_books(books, ratings, book_title, author_contains=None, min_ratings=MIN_RATINGS, top_n=DEFAULT_TOP_N):
     dataset = pd.merge(ratings, books, on="ISBN")
 
     dataset["Book-Title"] = dataset["Book-Title"].astype(str).str.lower().str.strip()

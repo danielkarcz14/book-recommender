@@ -32,25 +32,34 @@ Main components:
 - `src/data/clean.py` loads raw data and produces cleaned CSV files in `data/cleaned`
 - `src/model/book_rec.py` computes recommendations for a selected book
 - `src/app/app.py` provides a simple Streamlit interface for user input and result display
+- `config.ini` stores dataset paths and basic runtime parameters
+- `src/settings.py` loads the configuration for the rest of the codebase
 
 ## Project Structure
 
 ```text
 src/
+  __init__.py
   app/
+    __init__.py
     app.py
   data/
+    __init__.py
     download.py
     clean.py
   model/
+    __init__.py
     book_rec.py
+  settings.py
 data/
   raw/
   cleaned/
 docs/
   CODE_REVIEW.md
+config.ini
 README.md
 requirements.txt
+streamlit_app.py
 ```
 
 ## Data Pipeline
@@ -118,20 +127,28 @@ You can authenticate to Kaggle either by:
 ### 4. Download raw data
 
 ```bash
-python src/data/download.py
+python -m src.data.download
 ```
 
 ### 5. Clean the data
 
 ```bash
-python src/data/clean.py
+python -m src.data.clean
 ```
 
 ### 6. Run the Streamlit app
 
 ```bash
-python -m streamlit run src/app/app.py
+python -m streamlit run streamlit_app.py
 ```
+
+## Configuration
+
+Basic runtime configuration lives in `config.ini`.
+
+- `[data]` contains the dataset name and data directories
+- `[model]` contains model defaults such as `min_ratings`
+- `[app]` contains UI defaults such as `default_top_n`
 
 ## Current Features
 

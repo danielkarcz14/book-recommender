@@ -1,20 +1,12 @@
-import sys
-from pathlib import Path
-
 import pandas as pd
 
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
 from src.data.download import check_if_exists
-from src.paths import CLEANED_BOOKS_FILE
-from src.paths import CLEANED_DATA_DIR
-from src.paths import CLEANED_RATINGS_FILE
-from src.paths import RAW_BOOKS_FILE
-from src.paths import RAW_DATA_DIR
-from src.paths import RAW_RATINGS_FILE
+from src.settings import CLEANED_BOOKS_FILE
+from src.settings import CLEANED_DATA_DIR
+from src.settings import CLEANED_RATINGS_FILE
+from src.settings import RAW_BOOKS_FILE
+from src.settings import RAW_DATA_DIR
+from src.settings import RAW_RATINGS_FILE
 
 
 
