@@ -112,6 +112,7 @@ Authenticate to Kaggle either by setting `KAGGLE_USERNAME` and `KAGGLE_KEY`, or 
 ```bash
 git clone https://github.com/danielkarcz14/book-recommender.git
 cd book-recommender
+cp config-sample.ini config.ini
 python -m pip install -r requirements.txt
 python -m src.data.download
 python -m src.data.clean
