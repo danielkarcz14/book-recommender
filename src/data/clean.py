@@ -45,6 +45,8 @@ def clean_books(books: pd.DataFrame) -> pd.DataFrame:
     for column in ["ISBN", "Book-Title", "Book-Author", "Publisher"]:
         cleaned[column] = cleaned[column].astype(str).str.strip()
 
+    cleaned["Book-Title-Norm"] = cleaned["Book-Title"].str.lower()
+
     return cleaned
 
 
@@ -76,16 +78,16 @@ def build_cleaned_datasets() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def main() -> int:
     try:
-        print("Nacitam raw data...")
+        print("Loading raw data...")
         books, ratings = load_raw_data()
         print(f"Raw books: {len(books)}")
         print(f"Raw ratings: {len(ratings)}")
 
-        print("Cistim books...")
+        print("Cleaning books...")
         books_cleaned = clean_books(books)
         print(f"Cleaned books: {len(books_cleaned)}")
 
-        print("Cistim ratings...")
+        print("Cleaning ratings...")
         ratings_cleaned = clean_ratings(ratings, set(books_cleaned["ISBN"]))
         print(f"Cleaned ratings: {len(ratings_cleaned)}")
 
@@ -93,10 +95,10 @@ def main() -> int:
         books_cleaned.to_csv(CLEANED_BOOKS_FILE, index=False)
         ratings_cleaned.to_csv(CLEANED_RATINGS_FILE, index=False)
     except Exception as exc:
-        print(f"Cisteni dat selhalo: {exc}")
+        print(f"Failed to clean data: {exc}")
         return 1
 
-    print("Vycistena data jsou ulozena v data/cleaned.")
+    print("Cleaned data are saved in data/cleaned.")
     return 0
 
 
