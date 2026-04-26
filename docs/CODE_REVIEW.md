@@ -3,8 +3,8 @@
 ## What's good
 
 - The overall idea is reasonable, find users who rated the input book, look at what else they read, and rank by Pearson correlation. A standard item based collaborative filtering approach.
-- Filtering out `Book-Rating == 0` is correct (those are implicit, not explicit ratings).
-- The `min_ratings >= 8` threshold makes sense to drop noisy candidates.
+- Filtering out `Book-Rating == 0` is correct as they are implicit and would ruin the result of Pearson correlation.
+- The `min_ratings >= 8` threshold makes sense to drop noisy candidates and to get reasonable result from Perason correlation.
 
 ## Main issues
 
@@ -13,7 +13,8 @@
 - **Readability**: everything runs at module scope, no functions
 - **No error handling**: missing files, a book that isn't in the dataset, or `NaN` correlations all fail silently or with an unfriendly traceback.
 - **Lowercase transformation is broken**: `x.dtype == 'string'` is never true for pandas object columns, so the lambda on line 14 is a no-op. This worked for older Pandas version.
-- **Dead code**: `worst_list` is computed but never used.
+- **Redundant Outer Loop**: The list only ever contains a single item (`[book_title]`). The outer loop is unnecessary.
+- **For loops in general**: Using built-in pandas operations for looping such as .corrwith() for this case.
 
 ## What I changed in the refactor
 
